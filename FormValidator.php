@@ -13,7 +13,7 @@
 /**
  * FormValidator Class
  * 
- * @subpackage lib
+ * @subpackage form
  * @author Gabriel Liwerant
  */
 class FormValidator
@@ -109,6 +109,49 @@ class FormValidator
 	}
 	
 	/**
+	 * Validates against a honeypot form check.
+	 * 
+	 * We use all the field meta data to look for our honeypot. Then we make
+	 * a form validator object to perform our check. If we're in logging mode
+	 * and we fail the check, log it. Return the result of the check.
+	 *
+	 * @param object $field_meta_data Our field data to search
+	 * @param string $meta_key Key to match to find honeypot field
+	 * @param array $submitted_data User-submitted form data to check against
+	 * 
+	 * @return mixed Result of the check, true on success, result on failure
+	 */
+	public function validateHoneypotAgainstSubmittedData($field_meta_data, $meta_key, $submitted_data)
+	{
+		foreach ($field_meta_data as $field_name => $field_data)
+		{
+			if (isset($field_data[$meta_key]))
+			{
+				$is_honeypot = (boolean)$field_data[$meta_key];
+				
+				if ($is_honeypot)
+				{
+					if (isset($submitted_data[$field_name]))
+					{
+						$is_valid = $this->isValidAgainstHoneypot($submitted_data[$field_name]);
+					}
+					else
+					{
+						$is_valid = false;
+					}
+
+					if ( ! $is_valid)
+					{				
+						return $submitted_data[$field_name];
+					}
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	/**
 	 * Run data through a spam check.
 	 * 
 	 * A spam check asks the user a question on a form that is intended to
@@ -134,6 +177,48 @@ class FormValidator
 	}
 	
 	/**
+	 * Validate data against any spam checking.
+	 * 
+	 * If we find a spam check field, we loop through the correct values to find
+	 * a match. If we do, we have passed the validation. If the loop doesn't 
+	 * find any true answers, we have failed validation. If there are no spam 
+	 * check fields, we have passed the validation.
+	 *
+	 * @param array $field_meta_data Stored field meta data
+	 * @param array $meta_key Key to look for in finding meta spam check field
+	 * @param string $answer_key Key to look for in user-submitted data
+	 * @param array $submitted_data User submitted data
+	 * 
+	 * @return mixed Result of the check, true on success, result on failure
+	 */
+	public function validateSpamCheckAgainstSubmittedData($field_meta_data, $meta_key, $answer_key, $submitted_data)
+	{
+		$is_valid = false;
+		
+		foreach ($field_meta_data as $field_name => $field_data)
+		{
+			if ( isset($field_data[$meta_key]) AND isset($field_data[$answer_key]) )
+			{
+				$is_spam_check_field = (boolean)$field_data[$meta_key];
+
+				if ($is_spam_check_field)
+				{
+					if (isset($submitted_data[$field_name]))
+					{
+						return $this->isValidAgainstSpamCheck($field_data[$answer_key], $submitted_data[$field_name]);
+					}
+					else
+					{
+						return $submitted_data;
+					}
+				}
+			}
+		}
+		
+		return $is_valid;
+	}
+	
+	/**
 	 * Run data through a required field check.
 	 * 
 	 * A required field is one which must have data submitted to it in order to
@@ -154,7 +239,64 @@ class FormValidator
 			return true;
 		}
 	}
+	
+	/**
+	 * Validate data against required fields.
+	 * 
+	 * We use a loop to search for values in required fields and exit as soon as
+	 * we find an empty field with a required value. Otherwise, we have passed
+	 * verification.
+	 *
+	 * @param array $field_meta_data Form field meta data to loop through
+	 * @param string $meta_key Key to search field meta against
+	 * @param array $submitted_data User-submitted form data to check against
+	 * @param string $old_message_key Key for message appending
+	 * @param boolean $does_append_err_msg If we should append our error message
+	 * 
+	 * @return boolean Result of the check
+	 */
+	public function validateRequiredFieldsAgainstSubmittedData(
+		$field_meta_data, 
+		$meta_key, 
+		$submitted_data,
+		$old_message_key = null,
+		$does_append_err_msg = true		
+	)
+	{
+		foreach ($field_meta_data as $field_name => $field_data)
+		{			
+			if (isset($field_data[$meta_key]))
+			{
+				$is_required = (boolean)$field_data[$meta_key];
+
+				if ($is_required)
+				{
+					if (isset($submitted_data[$field_name]))
+					{
+						$is_valid = $this->isValidAgainstRequiredField($submitted_data[$field_name]);
+					}
+					else
+					{
+						$is_valid = false;
+					}
+					
+					if ( ! $is_valid)
+					{
+						// Append the name of the field to the message for display
+						if ($does_append_err_msg)
+						{
+							$this->appendRequiredFieldNameToFormMessage($field_name, $old_message_key);
+						}
+						
+						return false;
+					}
+				}
+			}
+		}
+		
+		return true;
+	}
 }
 // End of FormValidator Class
 
-/* EOF lib/FormValidator.php */
+/* EOF form/FormValidator.php */
