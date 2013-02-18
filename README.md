@@ -1,10 +1,10 @@
 # Form Submodule
 
-Generic form classes
+Classes for building and validating forms.
 
 ## Requirements
 
-* PHP 5 >= 5.2, PHP 5.3 recommended
+* PHP 5 >= 5.2, Tested up to PHP 5.4.3.
 
 ## Contact
 

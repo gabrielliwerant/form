@@ -100,11 +100,11 @@ class FormBuilder
 	 *
 	 * @param string $name Name attribute
 	 * @param string $id Field id
-	 * @param string $maxlength Maxlength attribute
-	 * @param string $type Type attribute
-	 * @param string $value Value attribute
-	 * @param string $size Size attribute
 	 * @param string $class Class attribute
+	 * @param string $maxlength Maxlength attribute
+	 * @param string|void $type Type attribute
+	 * @param string|void $value Value attribute
+	 * @param string|void $size Size attribute
 	 * 
 	 * @return string
 	 */
@@ -113,9 +113,9 @@ class FormBuilder
 		$id, 
 		$class,
 		$maxlength, 
-		$type			= null, 
-		$value			= null, 
-		$size			= null
+		$type	= null, 
+		$value	= null, 
+		$size	= null
 	)
 	{
 		$input	= array('name', 'id', 'class', 'maxlength', 'type', 'value', 'size');		
@@ -240,9 +240,9 @@ class FormBuilder
 	 * @param string $name Name attribute
 	 * @param string $id Id Attribute
 	 * @param string $maxlength Maxlength attribute
-	 * @param string $type Type attribute
-	 * @param string $value Value attribute
-	 * @param string $size Size attrivute
+	 * @param string|void $type Type attribute
+	 * @param string|void $value Value attribute
+	 * @param string|void $size Size attrivute
 	 * @param boolean $is_required Tells us if field is required or not
 	 * 
 	 * @return string HTML
@@ -354,7 +354,8 @@ class FormBuilder
 	 * id and individual fields and return the built form.
 	 *
 	 * @param string $fields HTML fields to enclose in form
-	 * @param string $id Form id
+	 * @param string|void $name Name attribute
+	 * @param string}void $id Id attribute
 	 * 
 	 * @return string Built HTML form
 	 */

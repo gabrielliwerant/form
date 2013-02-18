@@ -254,7 +254,7 @@ class FormValidator
 	 * @param array $field_meta_data Form field meta data to loop through
 	 * @param string $meta_key Key to search field meta against
 	 * @param array $submitted_data User-submitted form data to check against
-	 * @param string $old_message_key Key for message appending
+	 * @param string|void $old_message_key Key for message appending
 	 * @param boolean $does_append_err_msg If we should append our error message
 	 * 
 	 * @return boolean Result of the check
