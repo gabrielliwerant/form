@@ -187,6 +187,7 @@ class FormBuilder
 		$input['size']			= null;
 
 		$field = null;
+		
 		foreach ($input as $key => $val)
 		{
 			if ( ! empty($$key))
