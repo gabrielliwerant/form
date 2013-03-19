@@ -240,10 +240,10 @@ class FormBuilder
 	 * @param string $name Name attribute
 	 * @param string $id Id Attribute
 	 * @param string $maxlength Maxlength attribute
+	 * @param boolean $is_required Tells us if field is required or not
 	 * @param string|void $type Type attribute
 	 * @param string|void $value Value attribute
 	 * @param string|void $size Size attrivute
-	 * @param boolean $is_required Tells us if field is required or not
 	 * 
 	 * @return string HTML
 	 */
@@ -251,10 +251,10 @@ class FormBuilder
 		$name, 
 		$id, 
 		$maxlength, 
+		$is_required	= false,
 		$type			= null, 
 		$value			= null, 
-		$size			= null,
-		$is_required	= false
+		$size			= null
 	)
 	{
 		$class	= $this->_getRequiredClassName($is_required);		
