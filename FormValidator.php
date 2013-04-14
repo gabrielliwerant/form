@@ -203,7 +203,7 @@ class FormValidator
 			{
 				continue;
 			}
-			
+
 			$is_spam_check_field = (boolean)$field_data[$meta_key];
 
 			if ($is_spam_check_field)
@@ -268,12 +268,12 @@ class FormValidator
 	)
 	{
 		foreach ($field_meta_data as $field_name => $field_data)
-		{			
+		{
 			if ( ! isset($field_data[$meta_key]))
 			{
 				continue;
 			}
-			
+
 			$is_required = (boolean)$field_data[$meta_key];
 
 			if ($is_required)

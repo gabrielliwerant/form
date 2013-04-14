@@ -369,9 +369,12 @@ class FormBuilder
 		
 		foreach ($form_attr_name as $name)
 		{
-			$form_attributes .= $name . '="' . $$name . '" ';
+			if ( ! empty($$name))
+			{
+				$form_attributes .= $name . '="' . $$name . '" ';
+			}
 		}
-		
+
 		return '<form ' . $form_attributes . '>' . $fields . '</form>';
 	}
 	
