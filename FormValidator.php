@@ -125,25 +125,27 @@ class FormValidator
 	{
 		foreach ($field_meta_data as $field_name => $field_data)
 		{
-			if (isset($field_data[$meta_key]))
+			if ( ! isset($field_data[$meta_key]))
 			{
-				$is_honeypot = (boolean)$field_data[$meta_key];
-				
-				if ($is_honeypot)
-				{
-					if (isset($submitted_data[$field_name]))
-					{
-						$is_valid = $this->isValidAgainstHoneypot($submitted_data[$field_name]);
-					}
-					else
-					{
-						$is_valid = false;
-					}
+				continue;
+			}
+			
+			$is_honeypot = (boolean)$field_data[$meta_key];
 
-					if ( ! $is_valid)
-					{				
-						return $submitted_data[$field_name];
-					}
+			if ($is_honeypot)
+			{
+				if (isset($submitted_data[$field_name]))
+				{
+					$is_valid = $this->isValidAgainstHoneypot($submitted_data[$field_name]);
+				}
+				else
+				{
+					$is_valid = false;
+				}
+
+				if ( ! $is_valid)
+				{				
+					return $submitted_data[$field_name];
 				}
 			}
 		}
@@ -197,20 +199,22 @@ class FormValidator
 		
 		foreach ($field_meta_data as $field_name => $field_data)
 		{
-			if ( isset($field_data[$meta_key]) AND isset($field_data[$answer_key]) )
+			if ( ! isset($field_data[$meta_key]) OR ! isset($field_data[$answer_key]) )
 			{
-				$is_spam_check_field = (boolean)$field_data[$meta_key];
+				continue;
+			}
 
-				if ($is_spam_check_field)
+			$is_spam_check_field = (boolean)$field_data[$meta_key];
+
+			if ($is_spam_check_field)
+			{
+				if (isset($submitted_data[$field_name]))
 				{
-					if (isset($submitted_data[$field_name]))
-					{
-						return $this->isValidAgainstSpamCheck($field_data[$answer_key], $submitted_data[$field_name]);
-					}
-					else
-					{
-						return $submitted_data;
-					}
+					return $this->isValidAgainstSpamCheck($field_data[$answer_key], $submitted_data[$field_name]);
+				}
+				else
+				{
+					return $submitted_data;
 				}
 			}
 		}
@@ -250,7 +254,7 @@ class FormValidator
 	 * @param array $field_meta_data Form field meta data to loop through
 	 * @param string $meta_key Key to search field meta against
 	 * @param array $submitted_data User-submitted form data to check against
-	 * @param string $old_message_key Key for message appending
+	 * @param string|void $old_message_key Key for message appending
 	 * @param boolean $does_append_err_msg If we should append our error message
 	 * 
 	 * @return boolean Result of the check
@@ -264,32 +268,34 @@ class FormValidator
 	)
 	{
 		foreach ($field_meta_data as $field_name => $field_data)
-		{			
-			if (isset($field_data[$meta_key]))
+		{
+			if ( ! isset($field_data[$meta_key]))
 			{
-				$is_required = (boolean)$field_data[$meta_key];
+				continue;
+			}
 
-				if ($is_required)
+			$is_required = (boolean)$field_data[$meta_key];
+
+			if ($is_required)
+			{
+				if (isset($submitted_data[$field_name]))
 				{
-					if (isset($submitted_data[$field_name]))
+					$is_valid = $this->isValidAgainstRequiredField($submitted_data[$field_name]);
+				}
+				else
+				{
+					$is_valid = false;
+				}
+
+				if ( ! $is_valid)
+				{
+					// Append the name of the field to the message for display
+					if ($does_append_err_msg)
 					{
-						$is_valid = $this->isValidAgainstRequiredField($submitted_data[$field_name]);
+						$this->appendRequiredFieldNameToFormMessage($field_name, $old_message_key);
 					}
-					else
-					{
-						$is_valid = false;
-					}
-					
-					if ( ! $is_valid)
-					{
-						// Append the name of the field to the message for display
-						if ($does_append_err_msg)
-						{
-							$this->appendRequiredFieldNameToFormMessage($field_name, $old_message_key);
-						}
-						
-						return false;
-					}
+
+					return false;
 				}
 			}
 		}

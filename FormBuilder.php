@@ -96,18 +96,62 @@ class FormBuilder
 	}
 	
 	/**
-	 * Sets a form field in our array property as a key => value pair.
+	 * Builds form field attributes for HTML.
 	 *
-	 * @param string $key Key to use as identifier for value
-	 * @param string $field The value to store
+	 * @param string $name Name attribute
+	 * @param string $id Field id
+	 * @param string $class Class attribute
+	 * @param string $maxlength Maxlength attribute
+	 * @param string|void $type Type attribute
+	 * @param string|void $value Value attribute
+	 * @param string|void $size Size attribute
 	 * 
-	 * @return object FormBuilder
+	 * @return string
 	 */
-	private function _setField($key, $field)
+	private function _buildFieldAttributes(
+		$name, 
+		$id, 
+		$class,
+		$maxlength, 
+		$type	= null, 
+		$value	= null, 
+		$size	= null
+	)
 	{
-		$this->_fields[$key] = $field;
+		$input	= array('name', 'id', 'class', 'maxlength', 'type', 'value', 'size');		
+		$field	= null;
+
+		foreach ($input as $val)
+		{
+			if ( ! empty($$val))
+			{
+				$attribute	= $val . '="' . $$val . '"';
+				$field		.= $attribute . ' ';
+			}
+		}
 		
-		return $this;
+		return $field;
+	}
+
+	/**
+	 * Getter for required class name attribute.
+	 *
+	 * @param boolean $is_required
+	 * 
+	 * @return string 
+	 */
+	private function _getRequiredClassName($is_required)
+	{
+		if ($is_required)
+		{
+			$class = 'required';
+		}
+		else
+		{
+			$class = null;
+		}
+		
+		return $class;
 	}
 	
 	/**
@@ -118,87 +162,25 @@ class FormBuilder
 	 * 
 	 * @return string 
 	 */
-	private function _buildLabel($for, $text)
+	public function buildLabel($for, $text)
 	{
 		return '<label for="' . $for . '">' . $text . '</label>';
-	}
-	
-	/**
-	 * Helps us build our fields by adding required class and required icon.
-	 * 
-	 * We pass the field by reference so that changes are made to it out of the
-	 * function.
-	 *
-	 * @param boolean $is_required Tells us if field is required or not
-	 * @param string &$field The field we are currently building
-	 * @param string $icon_class Class name for icon or empty
-	 * 
-	 * @return string The required icon class
-	 */
-	private function _buildRequired($is_required, &$field, $icon_class = null)
-	{
-		if ((boolean)$is_required)
-		{
-			$field .= 'class="required"';
-			
-			if ( ! empty($icon_class))
-			{
-				$required = '<i class="' . $icon_class . '"></i>';
-			}
-			else
-			{
-				$required = null;
-			}
-		}
-		else
-		{
-			$required = null;
-		}
-		
-		return $required;
-	}
-	
-	/**
-	 * Builds our form field from passed in data.
-	 *
-	 * @param string $name Name attribute
-	 * @param string $id Field id
-	 * @param string $maxlength Maxlength attribute
-	 * @param string $type Type attribute
-	 * @param string $value Value attribute
-	 * @param string $size Size attribute
-	 * 
-	 * @return string Built form field with necessary attributes
-	 */
-	private function _buildField(
-		$name, 
-		$id, 
-		$maxlength, 
-		$type			= null, 
-		$value			= null, 
-		$size			= null
-	)
-	{
-		$input['name']			= null;
-		$input['id']			= null;
-		$input['maxlength']		= null;
-		$input['type']			= null;
-		$input['value']			= null;
-		$input['size']			= null;
+	}	
 
-		$field = null;
+	/**
+	 * Form field setter
+	 *
+	 * @param string $key
+	 * @param string $field
+	 * 
+	 * @return object FormBuilder
+	 */
+	public function setField($key, $field)
+	{
+		$this->_fields[$key] = $field;
 		
-		foreach ($input as $key => $val)
-		{
-			if ( ! empty($$key))
-			{
-				$attribute	= $key . '="' . $$key . '"';
-				$field		.= $attribute . ' ';
-			}
-		}
-		
-		return $field;
-	}
+		return $this;
+	}	
 	
 	/**
 	 * Allows us to populate a property with meta data for our fields.
@@ -238,114 +220,93 @@ class FormBuilder
 	}
 	
 	/**
-	 * Setter for labels, which first creates them with the appropriate HTML.
+	 * Label setter
 	 *
-	 * @param string $for For value for label
-	 * @param string $text Text portion of label
+	 * @param string $key
+	 * @param string $label
 	 * 
 	 * @return object FormBuilder
 	 */
-	public function setLabel($for, $text)
+	public function setLabel($key, $label)
 	{
-		$label = $this->_buildLabel($for, $text);
-		
-		$this->_labels[$for] = $label;
+		$this->_labels[$key] = $label;
 		
 		return $this;
 	}
 	
 	/**
-	 * Builds and then sets an input field.
+	 * Builds input field HTML.
 	 *
 	 * @param string $name Name attribute
-	 * @param string $id Field id
+	 * @param string $id Id Attribute
 	 * @param string $maxlength Maxlength attribute
-	 * @param string $type Type attribute
-	 * @param string $value Value attribute
-	 * @param string $size Size attrivute
 	 * @param boolean $is_required Tells us if field is required or not
-	 * @param string $icon_class Class name for icon or empty
+	 * @param string|void $type Type attribute
+	 * @param string|void $value Value attribute
+	 * @param string|void $size Size attrivute
 	 * 
-	 * @return object FormBuilder
+	 * @return string HTML
 	 */
-	public function setInput(
+	public function buildInput(
 		$name, 
 		$id, 
 		$maxlength, 
+		$is_required	= false,
 		$type			= null, 
 		$value			= null, 
-		$size			= null,
-		$is_required	= false,
-		$icon_class		= null
+		$size			= null
 	)
 	{
-		$field			= $this->_buildField($name, $id, $maxlength, $type, $value, $size);		
-		$required		= $this->_buildRequired($is_required, $field, $icon_class);
-		$input_field	= '<input ' . $field . '/>' . $required;
-		
-		$this->_setField($id, $input_field);
-		
-		return $this;
+		$class	= $this->_getRequiredClassName($is_required);		
+		$field	= $this->_buildFieldAttributes($name, $id, $class, $maxlength, $type, $value, $size);		
+
+		return '<input ' . $field . '/>';
 	}
 	
 	/**
-	 * Builds and then sets a textarea field.
+	 * Builds a textarea field HTML.
 	 *
 	 * @param string $name Name attribute
-	 * @param string $id Field id
+	 * @param string $id Id Attribute
 	 * @param boolean $is_required Tells us if field is required or not
-	 * @param string $icon_class Class name for icon or empty
 	 * 
-	 * @return object FormBuilder
+	 * @return string HTML
 	 */
-	public function setTextArea(
-		$name, 
-		$id, 
-		$is_required	= false,
-		$icon_class		= null
-	)
+	public function buildTextArea($name, $id, $is_required = false)
 	{
-		$field			= $this->_buildField($name, $id, null, null, null, null);		
-		$required		= $this->_buildRequired($is_required, $field, $icon_class);
-		$input_field	= '<textarea ' . $field . '></textarea>' . $required;
-		
-		$this->_setField($id, $input_field);
-		
-		return $this;
+		$class	= $this->_getRequiredClassName($is_required);
+		$field	= $this->_buildFieldAttributes($name, $id, $class, null, null, null, null);		
+
+		return '<textarea ' . $field . '></textarea>';
 	}
 	
 	/**
-	 * Public-facing setter for form select fields, which builds them with the 
-	 * appropriate HTML.
+	 * Build select form field HTML.
 	 *
 	 * @param string $name Name attribute
 	 * @param array $option_data Data to use for building the select options
 	 * @param string $id Select id
 	 * 
-	 * @return object FormBuilder
+	 * @return string HTML
 	 */
-	public function setSelect(
+	public function buildSelect(
 		$name, 
 		$option_data, 
 		$id, 
-		$is_required = false,
-		$icon_class	= null
+		$is_required = false
 	)
 	{
-		$option = null;		
+		$option = null;
+		
 		foreach ($option_data as $text => $value)
 		{
 			$option .= '<option value="' . $value . '">' . $text . '</option>';
 		}
 
-		$field		= $this->_buildField($name, $id, null);
-		$required	= $this->_buildRequired($is_required, $field, $icon_class);
+		$class	= $this->_getRequiredClassName($is_required);
+		$field	= $this->_buildFieldAttributes($name, $id, $class, null);
 		
-		$select_field = '<select ' . $field . '>' . $option . '</select>' . $required;
-		
-		$this->_setField($id, $select_field);
-		
-		return $this;
+		return '<select ' . $field . '>' . $option . '</select>';
 	}
 	
 	/**
@@ -393,7 +354,8 @@ class FormBuilder
 	 * id and individual fields and return the built form.
 	 *
 	 * @param string $fields HTML fields to enclose in form
-	 * @param string $id Form id
+	 * @param string|void $name Name attribute
+	 * @param string}void $id Id attribute
 	 * 
 	 * @return string Built HTML form
 	 */
@@ -402,20 +364,18 @@ class FormBuilder
 		$action				= $this->_form_action;
 		$method				= $this->_form_method;
 		
-		$form['action']		= null;
-		$form['method']		= null;
-		$form['name']		= null;
-		$form['id']			= null;
+		$form_attr_name		= array('action', 'method', 'name', 'id');
+		$form_attributes	= null;
 		
-		$form_attributes = null;		
-		foreach ($form as $attribute => $value)
+		foreach ($form_attr_name as $name)
 		{
-			$form_attributes .= $attribute . '="' . $$attribute . '" ';
+			if ( ! empty($$name))
+			{
+				$form_attributes .= $name . '="' . $$name . '" ';
+			}
 		}
-		
-		$built_form = '<form ' . $form_attributes . '>' . $fields . '</form>';
 
-		return $built_form;
+		return '<form ' . $form_attributes . '>' . $fields . '</form>';
 	}
 	
 	/**
@@ -430,18 +390,20 @@ class FormBuilder
 	{
 		foreach ($this->_field_meta as $name => $field_data)
 		{
-			if (isset($field_data['is_email']))
+			if ( ! isset($field_data['is_email']))
 			{
-				$is_email = (boolean)$field_data['is_email'];
-				
-				if ($is_email AND isset($submitted_data[$name]))
-				{
-					return $submitted_data[$name];
-				}
-				elseif ($is_email AND ! isset($submitted_data[$name]) )
-				{
-					return false;
-				}
+				continue;
+			}
+
+			$is_email = (boolean)$field_data['is_email'];
+
+			if ($is_email AND isset($submitted_data[$name]))
+			{
+				return $submitted_data[$name];
+			}
+			elseif ($is_email AND ! isset($submitted_data[$name]) )
+			{
+				return false;
 			}
 		}
 		
