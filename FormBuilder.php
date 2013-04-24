@@ -118,19 +118,31 @@ class FormBuilder
 		$size	= null
 	)
 	{
-		$input	= array('name', 'id', 'class', 'maxlength', 'type', 'value', 'size');		
-		$field	= null;
+		$input		= array('name', 'id', 'class', 'maxlength', 'type', 'value', 'size');	
+		$attributes	= null;
+		//$field	= null;
 
 		foreach ($input as $val)
 		{
 			if ( ! empty($$val))
 			{
-				$attribute	= $val . '="' . $$val . '"';
-				$field		.= $attribute . ' ';
+				$attributes	.= $val . '="' . $$val . '" ';
+				//$field		.= $attribute . ' ';
 			}
 		}
 		
-		return $field;
+		/* $form_attr_name		= array('action', 'method', 'name', 'id');
+		$form_attributes	= null;
+		
+		foreach ($form_attr_name as $name)
+		{
+			if ( ! empty($$name))
+			{
+				$form_attributes .= $name . '="' . $$name . '" ';
+			}
+		} */
+		
+		return $attributes;
 	}
 
 	/**
